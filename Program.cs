@@ -2,108 +2,122 @@
 
 namespace LabWork
 {
-    public class Function
+    public interface IFunction
     {
-        protected double a0, a1, b0, b1;
-
-        public Function()
-        {
-            Console.WriteLine("Введіть коефіцієнти функції:");
-            Console.WriteLine($"\nЧисельник:");
-            Console.Write($"a0 = ");
-            while (!double.TryParse(Console.ReadLine(), out a0))
-            {
-                Console.WriteLine("Некоректне значення. Спробуйте ще раз.");
-                Console.Write($"a0 = ");
-            }
-            Console.Write($"a1 = ");
-            while (!double.TryParse(Console.ReadLine(), out a1))
-            {
-                Console.WriteLine("Некоректне значення. Спробуйте ще раз.");
-                Console.Write($"a1 = ");
-            }
-            Console.WriteLine($"\nЗнаменник:");
-            Console.Write($"b0 = ");
-            while (!double.TryParse(Console.ReadLine(), out b0))
-            {
-                Console.WriteLine("Некоректне значення. Спробуйте ще раз.");
-                Console.Write($"b0 = ");
-            }
-            Console.Write($"b1 = ");
-            while (!double.TryParse(Console.ReadLine(), out b1))
-            {
-                Console.WriteLine("Некоректне значення. Спробуйте ще раз.");
-                Console.Write($"b1 = ");
-            }
-        }
-
-        public virtual void ShowCoefficients()
-        {
-            Console.WriteLine("\nКоефіцієнти функції:");
-            Console.WriteLine($"{a1}x + {a0}");
-            Console.WriteLine("------");
-            Console.WriteLine($"{b1}x + {b0}");
-        }
-
-        public virtual void FindValue()
-        {
-            Console.Write("\nВведіть значення для x0 = ");
-            double x0 = double.Parse(Console.ReadLine());
-            double denominator = b1 * x0 + b0;
-            if (denominator == 0)
-            {
-                Console.WriteLine("\nЗнаменник дорівнює 0, розрахунок неможливий.");
-            }
-            else
-            {
-                double result = (a1 * x0 + a0) / denominator;
-                Console.WriteLine($"\nЗначення дробово-лінійної функції при x0 = {x0}: {result}");
-            }
-        }
+        void ShowCoefficients();
+        void FindValue();
     }
 
-    public class FractionFunction : Function
+    /// <summary>
+    /// Базовий клас для дробово-лінійної функції.
+    /// </summary>
+    public class Function : IFunction
     {
-        private double a2, b2;
+        private double a0, a1, b0, b1;
 
-        public FractionFunction() : base()
+        // Властивості для доступу до полів
+        protected double A0 => a0;
+        protected double A1 => a1;
+        protected double B0 => b0;
+        protected double B1 => b1;
+
+        // Конструктор
+        public Function()
         {
-            Console.WriteLine("\nВведіть додаткові коефіцієнти для квадратичної функції:");
-            Console.Write($"a2 = ");
-            while (!double.TryParse(Console.ReadLine(), out a2))
-            {
-                Console.WriteLine("Некоректне значення. Спробуйте ще раз.");
-                Console.Write($"a2 = ");
-            }
-            Console.Write($"b2 = ");
-            while (!double.TryParse(Console.ReadLine(), out b2))
-            {
-                Console.WriteLine("Некоректне значення. Спробуйте ще раз.");
-                Console.Write($"b2 = ");
-            }
+            Console.WriteLine("Введіть коефіцієнти для дробово-лінійної функції:");
+            a0 = ReadCoefficient("a0");
+            a1 = ReadCoefficient("a1");
+            b0 = ReadCoefficient("b0");
+            b1 = ReadCoefficient("b1");
         }
 
-        public override void ShowCoefficients()
+        // Метод зчитування коефіцієнта з перевіркою
+        protected double ReadCoefficient(string name)
         {
-            Console.WriteLine("\nКоефіцієнти функції");
-            Console.WriteLine($"{a2}x^2 + {a1}x + {a0}");
-            Console.WriteLine("-------------");
-            Console.WriteLine($"{b2}x^2 + {b1}x + {b0}");
+            double value;
+            do
+            {
+                Console.Write($"{name} = ");
+                if (double.TryParse(Console.ReadLine(), out value))
+                    return value;
+
+                Console.WriteLine("Некоректне значення. Спробуйте ще раз.");
+            } while (true);
         }
 
-        public override void FindValue()
+        // Показ коефіцієнтів
+        public virtual void ShowCoefficients()
         {
-            Console.Write("\nВведіть значення для x0 = ");
-            double x0 = double.Parse(Console.ReadLine());
-            double denominator = b2 * Math.Pow(x0, 2) + b1 * x0 + b0;
+            Console.WriteLine("\nКоефіцієнти дробово-лінійної функції:");
+            Console.WriteLine($"Чисельник: {a1}x + {a0}");
+            Console.WriteLine($"Знаменник: {b1}x + {b0}");
+        }
+
+        // Обчислення значення функції
+        public virtual void FindValue()
+        {
+            Console.Write("\nВведіть значення x0: ");
+            if (!double.TryParse(Console.ReadLine(), out double x0))
+            {
+                Console.WriteLine("Некоректне значення. Розрахунок неможливий.");
+                return;
+            }
+
+            double denominator = b1 * x0 + b0;
             if (denominator == 0)
             {
                 Console.WriteLine("Знаменник дорівнює 0, розрахунок неможливий.");
             }
             else
             {
-                double result = (a2 * Math.Pow(x0, 2) + a1 * x0 + a0) / denominator;
-                Console.WriteLine($"\nЗначення дробової функції при x0 = {x0}: {result}");
+                double result = (a1 * x0 + a0) / denominator;
+                Console.WriteLine($"Значення дробово-лінійної функції при x0 = {x0}: {result}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Похідний клас для дробової функції.
+    /// </summary>
+    public class FractionFunction : Function
+    {
+        private double a2, b2;
+
+        // Конструктор
+        public FractionFunction() : base()
+        {
+            Console.WriteLine("\nВведіть додаткові коефіцієнти для дробової функції:");
+            a2 = ReadCoefficient("a2");
+            b2 = ReadCoefficient("b2");
+        }
+
+        // Показ коефіцієнтів
+        public override void ShowCoefficients()
+        {
+            Console.WriteLine("\nКоефіцієнти дробової функції:");
+            Console.WriteLine($"Чисельник: {a2}x^2 + {A1}x + {A0}");
+            Console.WriteLine($"Знаменник: {b2}x^2 + {B1}x + {B0}");
+        }
+
+        // Обчислення значення функції
+        public override void FindValue()
+        {
+            Console.Write("\nВведіть значення x0: ");
+            if (!double.TryParse(Console.ReadLine(), out double x0))
+            {
+                Console.WriteLine("Некоректне значення. Розрахунок неможливий.");
+                return;
+            }
+
+            double denominator = b2 * Math.Pow(x0, 2) + B1 * x0 + B0;
+            if (denominator == 0)
+            {
+                Console.WriteLine("Знаменник дорівнює 0, розрахунок неможливий.");
+            }
+            else
+            {
+                double result = (a2 * Math.Pow(x0, 2) + A1 * x0 + A0) / denominator;
+                Console.WriteLine($"Значення дробової функції при x0 = {x0}: {result}");
             }
         }
     }
@@ -114,10 +128,12 @@ namespace LabWork
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
+            Console.WriteLine("=== Дробово-лінійна функція ===");
             Function linearFunction = new Function();
             linearFunction.ShowCoefficients();
             linearFunction.FindValue();
 
+            Console.WriteLine("\n=== Дробова функція ===");
             FractionFunction quadraticFunction = new FractionFunction();
             quadraticFunction.ShowCoefficients();
             quadraticFunction.FindValue();
