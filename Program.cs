@@ -105,4 +105,4 @@ class Program
         quadrilateral.PrintCoordinates();
         Console.WriteLine($"Площа опуклого чотирикутника: {quadrilateral.CalculateArea()}");
     }
-}
+} 
